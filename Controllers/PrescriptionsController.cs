@@ -28,13 +28,62 @@ namespace CodeMedical.Controllers
             var medicalOfficeContext = from p in _context.Prescriptions
                                        select p;
 
-            if (!(startDate == DateTime.MinValue) && !(endDate == DateTime.MinValue)){
+            if (!(startDate == DateTime.MinValue) && !(endDate == DateTime.MinValue))
+            {
                 medicalOfficeContext = medicalOfficeContext
-                    .Where(p => p.IssueDate <= endDate && 
+                    .Where(p => p.IssueDate <= endDate &&
                                 p.IssueDate >= startDate);
             }
-            
+
             return View(await medicalOfficeContext.ToListAsync());
+        }
+
+        // GET: Prescriptions/PrescriptionsReport
+        public async Task<IActionResult> PrescriptionsReport(DateTime startDate, DateTime endDate)
+        {
+            ViewData["StartDate"] = startDate;
+            ViewData["EndDate"] = endDate;
+
+            var patients = _context.Patients
+                .Include(p => p.Prescriptions
+                .Where(p => p.IssueDate >= startDate &&
+                            p.IssueDate <= endDate))
+                .AsNoTracking()
+                .ToListAsync();
+
+            return View(await patients);
+        }
+
+        // GET: Prescriptions/DrugsReport
+        public async Task<IActionResult> DrugsReport(DateTime startDate, DateTime endDate)
+        {
+            ViewData["StartDate"] = startDate;
+            ViewData["EndDate"] = endDate;
+
+            var prescriptions = await _context.Prescriptions
+                .Where(p => p.IssueDate >= startDate &&
+                            p.IssueDate <= endDate)
+                .Include(pr => pr.PrescriptedDrugInfos)
+                .ThenInclude(prd => prd.Drug)
+                .AsNoTracking()
+                .ToListAsync();
+
+            Dictionary<string, int> drugsAndQuantities = new Dictionary<string, int>();
+
+            var drugs = _context.Drugs;
+
+            foreach (var drug in drugs)
+            {
+                var quantity = 0;
+                foreach (var prescription in prescriptions)
+                {
+                    quantity += prescription.PrescriptedDrugInfos.Where(x => x.Drug.Name == drug.Name).Select(x => x.Quantity).Sum();
+                }
+                drugsAndQuantities.Add(drug.Name, quantity);
+            }
+            ViewData["DrugsAndQuantities"] = drugsAndQuantities;
+
+            return View(prescriptions);
         }
 
         // GET: Prescriptions/Details/5

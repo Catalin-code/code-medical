@@ -1,0 +1,47 @@
+﻿@model IEnumerable<CodeMedical.Models.Patient>
+
+@{
+    ViewData["Title"] = "Prescriptions Report";
+}
+
+<h1>Reports</h1>
+
+<form asp-action="PrescriptionsReport" method="get">
+    <label for="startDate">Start Date</label>
+    <input type="datetime-local" id="startDate" name="startDate" min="2000-01-01T00:00" value="@ViewData["StartDate"]" />
+    <label for="endDate">End Date</label>
+    <input type="datetime-local" id="endDate" name="endDate" min="2000-01-02T00:00" value="@ViewData["EndDate"]" />
+    <input type="submit" value="Get report" class="btn btn-primary" />
+</form>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Patient Last Name
+            </th>
+            <th>
+                Patient First Name
+            </th>
+            <th>
+                Prescriptions issued
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LastName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FirstName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Prescriptions.Count)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
