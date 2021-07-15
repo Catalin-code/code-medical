@@ -20,9 +20,20 @@ namespace CodeMedical.Controllers
         }
 
         // GET: Prescriptions
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(DateTime startDate, DateTime endDate)
         {
-            var medicalOfficeContext = _context.Prescriptions.Include(p => p.Patient);
+            ViewData["StartDate"] = startDate;
+            ViewData["EndDate"] = endDate;
+
+            var medicalOfficeContext = from p in _context.Prescriptions
+                                       select p;
+
+            if (!(startDate == DateTime.MinValue) && !(endDate == DateTime.MinValue)){
+                medicalOfficeContext = medicalOfficeContext
+                    .Where(p => p.IssueDate <= endDate && 
+                                p.IssueDate >= startDate);
+            }
+            
             return View(await medicalOfficeContext.ToListAsync());
         }
 
@@ -54,8 +65,6 @@ namespace CodeMedical.Controllers
         }
 
         // POST: Prescriptions/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ID,PatientID,Series,Number,IssueDate")] Prescription prescription)
@@ -88,8 +97,6 @@ namespace CodeMedical.Controllers
         }
 
         // POST: Prescriptions/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("ID,PatientID,Series,Number,IssueDate")] Prescription prescription)
