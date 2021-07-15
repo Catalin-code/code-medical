@@ -110,6 +110,14 @@ namespace CodeMedical.Controllers
         public IActionResult Create()
         {
             ViewData["PatientID"] = new SelectList(_context.Patients, "ID", "ID");
+            var patientNames = _context.Patients
+                .Select(p => new
+                {
+                    Text = p.LastName + " " + p.FirstName,
+                    Value = p.ID
+                }).ToList();
+
+            ViewBag.PatientNames = new SelectList(patientNames, "Value", "Text");
             return View();
         }
 
