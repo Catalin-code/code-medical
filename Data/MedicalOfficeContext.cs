@@ -19,7 +19,7 @@ namespace CodeMedical.Data
             modelBuilder.Entity<Drug>().ToTable("Drug");
             modelBuilder.Entity<Patient>().ToTable("Patient");
             modelBuilder.Entity<Prescription>().ToTable("Prescription");
-            modelBuilder.Entity<PrescriptedDrugInfo>().ToTable("QuantityAndDosage");
+            modelBuilder.Entity<PrescriptedDrugInfo>().ToTable("PrescriptedDrugInfo");
         }
     }
 }

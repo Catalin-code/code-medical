@@ -35,6 +35,7 @@ namespace CodeMedical.Controllers
             }
 
             var prescription = await _context.Prescriptions
+                .Include(p => p.PrescriptedDrugInfos).ThenInclude(pr => pr.Drug)
                 .Include(p => p.Patient)
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (prescription == null)
